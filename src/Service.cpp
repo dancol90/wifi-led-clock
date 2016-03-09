@@ -21,9 +21,9 @@ void Service::register_service(Service* service, const char* name, std::vector<c
             Service::events[event_name] = std::vector<EventCallback>();
         }
 
-        SERVICE_PRINTF("OK\n");
+        SERVICE_PRINT("OK");
     } else
-        SERVICE_PRINTF("ERROR: already exists\n");
+        SERVICE_PRINT("ERROR: already exists");
 }
 
 void Service::init_all() {
@@ -40,9 +40,9 @@ void Service::bind_event(const char* event, EventCallback callback) {
         // TODO check if the callback is already registered
         Service::events[event].push_back(callback);
 
-        SERVICE_PRINTF("OK\n");
+        SERVICE_PRINT("OK");
     } else {
-        SERVICE_PRINTF("ERROR: not found\n");
+        SERVICE_PRINT("ERROR: not found");
     }
 }
 

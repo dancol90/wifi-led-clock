@@ -52,14 +52,14 @@ void WiFiDriver::update() {
             case WL_CONNECTION_LOST:
                 // What about WL_DISCONNECTED? It's the state after this
                 // Here it has lost connection
-                SERVICE_PRINTF("WiFi disconnected\n");
+                SERVICE_PRINT("WiFi disconnected");
 
                 Service::fire_event(this, "wifi.disconnected");
                 break;
             case WL_NO_SSID_AVAIL:
             case WL_CONNECT_FAILED:
                 // Wrong config, cannot connect, start AP mode
-                SERVICE_PRINTF("WiFi failed connection\n");
+                SERVICE_PRINT("WiFi failed connection");
 
                 Service::fire_event(this, "wifi.failed");
 
@@ -75,13 +75,20 @@ void WiFiDriver::update() {
 void WiFiDriver::set_connection(String ssid, String pkey) {
     SERVICE_PRINTF("WiFi connecting to new network %s (key: %s)\n", ssid.c_str(), pkey.c_str());
     // Enable STA and set network info
-    WiFi.begin(ssid.c_str(), pkey.c_str(), 0, NULL, true);
+    WiFi.begin(ssid.c_str(), pkey.c_str());
 }
 
 void WiFiDriver::enable_acess_point() {
-    SERVICE_PRINTF("WiFi enabling access point\n");
+    // Do nothing if AP is already on
+    if (WiFi.getMode() & WIFI_AP) {
+        SERVICE_PRINT("WiFi access point already enabled");
+        return;
+    }
 
-    //WiFi.enableSTA(true);
+    SERVICE_PRINT("WiFi enabling access point");
+
+    // Setup and turn on the access point
+    // TODO load ssid & co. from configuration
     WiFi.softAP("ESP8266");
 
     SERVICE_PRINTF("AP IP address is %s", WiFi.softAPIP().toString().c_str());
@@ -90,7 +97,7 @@ void WiFiDriver::enable_acess_point() {
 }
 
 void WiFiDriver::disable_acess_point() {
-    SERVICE_PRINTF("WiFi disabling access point\n");
+    SERVICE_PRINT("WiFi disabling access point");
     WiFi.enableAP(false);
 }
 

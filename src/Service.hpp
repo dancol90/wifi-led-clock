@@ -10,8 +10,10 @@
 
 #ifdef DEBUG
     #define SERVICE_PRINTF(format, ...) Serial.printf(format, ##__VA_ARGS__);
+    #define SERVICE_PRINT(text)         Serial.println(F(text));
 #else
     #define SERVICE_PRINTF(...)
+    #define SERVICE_PRINT(text)
 #endif
 
 #define S(name, type) ((type*)Service::get(name))
