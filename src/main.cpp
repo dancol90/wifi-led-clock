@@ -3,11 +3,12 @@
    - [OK] Led display
    - [OK] Time
    - [OK] WiFi
+   - [OK] File System
 
   List of needed services:
    - [OK] Scroll management
    - Configuration (over SPIFFS)
-   - HTTP Server (?)
+   - [OK*] HTTP Server (?)
    - MQTT handling
 */
 
