@@ -22,7 +22,7 @@ public:
 
     void enable_acess_point();
     void disable_acess_point();
-    void set_connection(String ssid, String pkey);
+    void connect_to(String ssid, String pkey);
 
     NetworkList& scan();
     NetworkList& last_scan_result();

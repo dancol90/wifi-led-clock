@@ -9,9 +9,6 @@ WiFiDriver::WiFiDriver() {
 }
 
 void WiFiDriver::init() {
-    // Just for now, delete all saved info
-    WiFi.disconnect();
-
     // Ensure that we are in STA mode
     WiFi.mode(WIFI_STA);
     // Save connection info (SSID & key) to flash
@@ -30,7 +27,7 @@ void WiFiDriver::init() {
 void WiFiDriver::update() {
     wl_status_t status = WiFi.status();
 
-    SERVICE_PRINTF("WiFi update: prev %d, now %d\n", prev_status, status);
+    //SERVICE_PRINTF("WiFi update: prev %d, now %d\n", prev_status, status);
 
     /*
         If not configured, wifi is in IDLE,
@@ -72,7 +69,7 @@ void WiFiDriver::update() {
     }
 }
 
-void WiFiDriver::set_connection(String ssid, String pkey) {
+void WiFiDriver::connect_to(String ssid, String pkey) {
     SERVICE_PRINTF("WiFi connecting to new network %s (key: %s)\n", ssid.c_str(), pkey.c_str());
     // Enable STA and set network info
     WiFi.begin(ssid.c_str(), pkey.c_str());
@@ -82,23 +79,26 @@ void WiFiDriver::enable_acess_point() {
     // Do nothing if AP is already on
     if (WiFi.getMode() & WIFI_AP) {
         SERVICE_PRINT("WiFi access point already enabled");
-        return;
+    } else {
+        SERVICE_PRINT("WiFi enabling access point");
+
+        // Setup and turn on the access point
+        // TODO load ssid & co. from configuration
+        WiFi.softAP("ESP8266");
+
+        SERVICE_PRINTF("AP IP address is %s\n", WiFi.softAPIP().toString().c_str());
+
+        Service::fire_event(this, "wifi.ap-mode");
     }
-
-    SERVICE_PRINT("WiFi enabling access point");
-
-    // Setup and turn on the access point
-    // TODO load ssid & co. from configuration
-    WiFi.softAP("ESP8266");
-
-    SERVICE_PRINTF("AP IP address is %s", WiFi.softAPIP().toString().c_str());
-
-    Service::fire_event(this, "wifi.ap-mode");
 }
 
 void WiFiDriver::disable_acess_point() {
-    SERVICE_PRINT("WiFi disabling access point");
-    WiFi.enableAP(false);
+    if (WiFi.getMode() & WIFI_AP) {
+        SERVICE_PRINT("WiFi disabling access point");
+        WiFi.softAPdisconnect(true);
+    } else {
+        SERVICE_PRINT("WiFi access point already disabled");
+    }
 }
 
 

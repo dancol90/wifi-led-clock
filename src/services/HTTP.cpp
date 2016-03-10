@@ -38,15 +38,15 @@ void HTTPService::init() {
         server.send(200, "text/json", json);
     });
     server.on("/wifi", HTTP_POST,[=]() {
-        // TODO take the parameters "ssid" & "pkey" as wifi credentials
+        // TODO do some checks on arguments (maybe sanitize!!)
         String ssid = server.arg("ssid");
         String pkey = server.arg("pkey");
 
-        Serial.printf("%s, %s\n", ssid.c_str(), pkey.c_str());
-
-        wifi->set_connection(ssid, pkey);
-
+        // Send output first
         server.send(200, "text/json", F("\"Ok\""));
+
+        // then connect
+        wifi->connect_to(ssid, pkey);
     });
 
     server.onNotFound([=](){
