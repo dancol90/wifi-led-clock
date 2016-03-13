@@ -7,8 +7,9 @@
 
   List of needed services:
    - [OK] Scroll management
-   - Configuration (over SPIFFS)
+   - [OK] Configuration (over SPIFFS)
    - [OK*] HTTP Server (?)
+   - NTP
    - MQTT handling
 */
 
@@ -22,6 +23,7 @@
 #include "services/Scroll.hpp"
 #include "services/HTTP.hpp"
 #include "services/Registry.hpp"
+#include "services/NTP.hpp"
 
 void setup() {
     Serial.begin(115200);
@@ -39,6 +41,7 @@ void setup() {
         // Services
         new ScrollService(),
         new HTTPService(),
+        new NTPService()
     };
 
     Service::init_all();

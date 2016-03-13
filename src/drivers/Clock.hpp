@@ -25,7 +25,7 @@ public:
     void init();
     void update();
 
-    void set(long timestamp);
+    void set(unsigned long timestamp);
     Time& now();
 
     void suppress_event(bool suppress);

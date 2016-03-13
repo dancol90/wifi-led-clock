@@ -43,7 +43,7 @@ void HTTPService::init() {
         String pkey = server.arg("pkey");
 
         // Send output first
-        server.send(200, "text/json", F("\"Ok\""));
+        server.send(200, "text/json", F("\"OK\""));
 
         // then connect
         wifi->connect_to(ssid, pkey);

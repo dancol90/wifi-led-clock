@@ -76,7 +76,9 @@ void ClockDriver::update() {
         Service::fire_event(this, "clock.time-changed");
 }
 
-void ClockDriver::set(long timestamp) {
+void ClockDriver::set(unsigned long timestamp) {
+    SERVICE_PRINTF("Setting clock to timestamp %ld\n", timestamp);
+
     // Get only today's seconds
     int since_midnight = timestamp % 86400UL;
 
