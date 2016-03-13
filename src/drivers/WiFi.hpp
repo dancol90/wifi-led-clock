@@ -1,4 +1,5 @@
 #include "../Service.hpp"
+#include "../services/Registry.hpp"
 
 #include <ESP8266WiFi.h>
 
@@ -27,8 +28,9 @@ public:
     NetworkList& scan();
     NetworkList& last_scan_result();
 private:
-    wl_status_t prev_status;
+    RegistryService* registry;
 
+    wl_status_t prev_status;
     NetworkList networks;
 };
 

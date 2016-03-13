@@ -9,6 +9,8 @@ WiFiDriver::WiFiDriver() {
 }
 
 void WiFiDriver::init() {
+    registry = S("registry", RegistryService);
+
     // Ensure that we are in STA mode
     WiFi.mode(WIFI_STA);
     // Save connection info (SSID & key) to flash
@@ -83,8 +85,8 @@ void WiFiDriver::enable_acess_point() {
         SERVICE_PRINT("WiFi enabling access point");
 
         // Setup and turn on the access point
-        // TODO load ssid & co. from configuration
-        WiFi.softAP("ESP8266");
+        String ssid = registry->get("wifi_ap_ssid", "ESP8266");
+        WiFi.softAP(ssid.c_str());
 
         SERVICE_PRINTF("AP IP address is %s\n", WiFi.softAPIP().toString().c_str());
 
