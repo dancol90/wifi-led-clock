@@ -20,8 +20,8 @@ void WiFiDriver::init() {
         WiFi.begin();
     else
         enable_acess_point();
-
-    set_periodic_update(1000);
+        
+    set_periodic_update(1000, UPDATE_SYNC);
 }
 
 void WiFiDriver::update() {

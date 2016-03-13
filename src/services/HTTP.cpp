@@ -55,7 +55,7 @@ void HTTPService::init() {
 
     server.begin();
 
-    // set_periodic_update(5);
+    set_periodic_update(0, UPDATE_SYNC);
 }
 
 void HTTPService::update() {
