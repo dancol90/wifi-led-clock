@@ -18,21 +18,27 @@
 #include "drivers/LED.hpp"
 #include "drivers/Clock.hpp"
 #include "drivers/WiFi.hpp"
+#include "drivers/FS.hpp"
 #include "services/Scroll.hpp"
 #include "services/HTTP.hpp"
+#include "services/Registry.hpp"
 
 void setup() {
     Serial.begin(115200);
 
     Service* drivers[] = {
+        // "Priority" services & drivers
+        new FileSystemDriver(),
+        new RegistryService(),
+
         // Drivers
-        new LedMatrixDriver(),
         new ClockDriver(),
         new WiFiDriver(),
+        new LedMatrixDriver(),
 
         // Services
         new ScrollService(),
-        new HTTPService()
+        new HTTPService(),
     };
 
     Service::init_all();
