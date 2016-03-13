@@ -4,10 +4,11 @@ FileSystemDriver::FileSystemDriver() : Service() {
     Service::register_service(this, "fs", {});
 }
 
-
 void FileSystemDriver::init() {
     SPIFFS.begin();
 }
+
+void FileSystemDriver::update() {}
 
 File FileSystemDriver::open(String path, bool write, bool append) {
     String mode = write ? (append ? "a" : "w") : "r";
