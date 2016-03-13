@@ -22,6 +22,17 @@ struct char_compare {
     bool operator () (const char *a, const char *b) const { return strcmp(a,b) < 0; }
 };
 
+enum UpdateType {
+    UPDATE_SYNC,
+    UPDATE_ASYNC
+};
+
+enum UpdateRequest {
+    NO_UPDATE,
+    DO_UPDATE,
+    ALWAYS_UPDATE
+};
+
 class Service {
 public:
 
@@ -39,15 +50,17 @@ public:
     static void bind_event(const char* event, EventCallback callback);
 
     static void init_all();
-
+    static void sync_update();
 protected:
     static void register_service(Service* service, const char* name,
                                  std::vector<const char*> events);
     static void fire_event(Service* service, const char* event);
 
-    void set_periodic_update(unsigned int period);
+    void set_periodic_update(unsigned int period, UpdateType ut = UPDATE_ASYNC);
     void enable_periodic_update();
     void disable_periodic_update();
+
+    UpdateRequest update_request;
 
 private:
     Task update_task;

@@ -58,8 +58,30 @@ Service* Service::get(const char* name) {
     return Service::services[name];
 }
 
-void Service::set_periodic_update(unsigned int period) {
-    this->update_task.attach(period, std::bind(&Service::update, this));
+void Service::sync_update() {
+    for (auto& s : Service::services) {
+        if (s.second->update_request != NO_UPDATE) {
+            //SERVICE_PRINTF("Syncronous updating service %s\n", s.first);
+            s.second->update();
+
+            if (s.second->update_request != ALWAYS_UPDATE)
+                s.second->update_request = NO_UPDATE;
+        }
+    }
+}
+
+void Service::set_periodic_update(unsigned int period, UpdateType ut) {
+    Task::TaskFunct f;
+
+    if (ut == UPDATE_SYNC)
+        if (period == 0)
+            this->update_request = ALWAYS_UPDATE;
+        else
+            this->update_task.attach(period, [this]() {
+                this->update_request = DO_UPDATE;
+            });
+    else
+        this->update_task.attach(period, std::bind(&Service::update, this));
 }
 
 void Service::enable_periodic_update() {

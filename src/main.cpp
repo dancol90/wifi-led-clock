@@ -62,5 +62,6 @@ void setup() {
 }
 
 void loop() {
-    Service::get("http")->update();
+    Service::sync_update();
+    delay(0);
 }
