@@ -6,6 +6,8 @@
 #ifndef WIFI_HPP
 #define WIFI_HPP
 
+const String WIFI_AP_SSID = "ESP8266";
+
 struct WiFiNetwork {
     String SSID;
     int RSSI;

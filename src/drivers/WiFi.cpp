@@ -22,7 +22,7 @@ void WiFiDriver::init() {
         WiFi.begin();
     else
         enable_acess_point();
-        
+
     set_periodic_update(1000, UPDATE_SYNC);
 }
 
@@ -85,7 +85,7 @@ void WiFiDriver::enable_acess_point() {
         SERVICE_PRINT("WiFi enabling access point");
 
         // Setup and turn on the access point
-        String ssid = registry->get("wifi_ap_ssid", "ESP8266");
+        String ssid = registry->get("wifi_ap_ssid", WIFI_AP_SSID);
         WiFi.softAP(ssid.c_str());
 
         SERVICE_PRINTF("AP IP address is %s\n", WiFi.softAPIP().toString().c_str());
