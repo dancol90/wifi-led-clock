@@ -10,6 +10,10 @@ void FileSystemDriver::init() {
 
 void FileSystemDriver::update() {}
 
+bool FileSystemDriver::exists(String path) {
+    return SPIFFS.exists(path);
+}
+
 File FileSystemDriver::open(String path, bool write, bool append) {
     String mode = write ? (append ? "a" : "w") : "r";
 

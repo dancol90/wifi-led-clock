@@ -15,23 +15,21 @@ public:
     T get(String key, T default_val = "") {
         SERVICE_PRINTF("Opening config file %s...", key.c_str());
 
-        File f = fs->open(String("/config/") + key);
+        String file = String("/config/") + key;
 
-        if (!f) {
-            Serial.println("no file found");
+        if (fs->exists(file)) {
+            String s = fs->read(file);
+
+            SERVICE_PRINTF("content: %s\n", s.c_str());
+
+            return s.length() > 0 ? from_string<T>(s) : default_val;
+        } else {
+            SERVICE_PRINT("no file found");
             return default_val;
         }
-
-        String s = f.readString();
-        SERVICE_PRINTF("content: %s\n", s.c_str());
-        f.close();
-
-        return from_string<T>(s);
     }
 
     void set(String key, String value);
-    //void set(String key, int value);
-    //void set(String key, long value);
 
 private:
     FileSystemDriver* fs;

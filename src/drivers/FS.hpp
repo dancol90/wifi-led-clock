@@ -13,6 +13,8 @@ public:
     void init();
     void update();
 
+    bool exists(String path);
+
     File open(String path, bool write = false, bool append = false);
     String read(String path);
     void write(String path, String content);
