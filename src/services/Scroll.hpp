@@ -20,7 +20,7 @@ public:
     bool is_scrolling() { return scrolling; }
 
     char* get_buffer() { return text; }
-    void  message(const char* format, ...);
+    void  message(String format, ...);
 
 private:
     LedMatrixDriver* display;

@@ -1,5 +1,7 @@
 #include "../Service.hpp"
 #include "../drivers/WiFi.hpp"
+#include "../services/Registry.hpp"
+#include "../services/Scroll.hpp"
 
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
@@ -16,7 +18,12 @@ public:
 
 private:
     WiFiDriver* wifi;
+    RegistryService* registry;
+    ScrollService* scroll;
+
     ESP8266WebServer server;
+
+    bool authenticate();
 };
 
 #endif

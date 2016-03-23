@@ -10,13 +10,13 @@ HTTPService::HTTPService() : server(80) {
 
 void HTTPService::init() {
     wifi = S("wifi", WiFiDriver);
-
-    server.on("/", HTTP_GET, [=]() {
-        // TODO load html page from SPIFS
-        server.send(200, "text/html", "Home");
-    });
+    registry = S("registry", RegistryService);
+    scroll = S("scroll", ScrollService);
 
     server.on("/wifi", HTTP_GET, [=]() {
+        if (!authenticate())
+            return server.requestAuthentication();
+
         auto& networks = wifi->scan();
 
         String json = "[";
@@ -37,7 +37,10 @@ void HTTPService::init() {
 
         server.send(200, "text/json", json);
     });
-    server.on("/wifi", HTTP_POST,[=]() {
+    server.on("/wifi", HTTP_POST, [=]() {
+        if (!authenticate())
+            return server.requestAuthentication();
+
         // TODO do some checks on arguments (maybe sanitize!!)
         String ssid = server.arg("ssid");
         String pkey = server.arg("pkey");
@@ -47,6 +50,20 @@ void HTTPService::init() {
 
         // then connect
         wifi->connect_to(ssid, pkey);
+    });
+
+    server.on("/message", HTTP_POST, [=]() {
+        if (!authenticate())
+            return server.requestAuthentication();
+
+        // TODO handle buffer overflows with long strings
+        //      (unless the server lib already handles it)
+        String message = server.arg("m");
+
+        server.send(200, "text/json", F("\"OK\""));
+
+        if (message.length())
+            scroll->message(message);
     });
 
     server.onNotFound([=](){
@@ -60,4 +77,11 @@ void HTTPService::init() {
 
 void HTTPService::update() {
     server.handleClient();
+}
+
+bool HTTPService::authenticate() {
+    String user = registry->get("http_username", String());
+    String pass = registry->get("http_password", String());
+
+    return server.authenticate(user.c_str(), pass.c_str());
 }

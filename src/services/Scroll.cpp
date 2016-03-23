@@ -76,12 +76,12 @@ void ScrollService::stop() {
     clock->suppress_event(false);
 }
 
-void ScrollService::message(const char* format, ...) {
+void ScrollService::message(String format, ...) {
     va_list argptr;
     // Get parameter list
     va_start(argptr, format);
     // Create string and save it to this->text
-    vsnprintf(text, 250, format, argptr);
+    vsnprintf(text, 250, format.c_str(), argptr);
     // Cleanup
     va_end(argptr);
 

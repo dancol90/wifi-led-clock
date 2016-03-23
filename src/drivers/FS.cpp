@@ -22,10 +22,10 @@ File FileSystemDriver::open(String path, bool write, bool append) {
 
 String FileSystemDriver::read(String path) {
     File f = open(path);
-    String s = "";
+    String s;
 
     if (f) {
-        String s = f.readString();
+        s = f.readString();
         f.close();
     }
 

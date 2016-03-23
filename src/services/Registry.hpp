@@ -24,7 +24,7 @@ public:
 
             return s.length() > 0 ? from_string<T>(s) : default_val;
         } else {
-            SERVICE_PRINT("no file found");
+            SERVICE_PRINTF("error\n");
             return default_val;
         }
     }
