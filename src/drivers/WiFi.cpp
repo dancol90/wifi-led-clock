@@ -21,7 +21,7 @@ void WiFiDriver::init() {
     if (WiFi.SSID().length() > 0)
         WiFi.begin();
     else
-        enable_acess_point();
+        enable_access_point();
 
     set_periodic_update(1000, UPDATE_SYNC);
 }
@@ -44,7 +44,7 @@ void WiFiDriver::update() {
                 // Here, it connected
                 SERVICE_PRINTF("WiFi connected with IP %s\n", WiFi.localIP().toString().c_str());
 
-                disable_acess_point();
+                disable_access_point();
 
                 Service::fire_event(this, "wifi.connected");
                 break;
@@ -62,7 +62,7 @@ void WiFiDriver::update() {
 
                 Service::fire_event(this, "wifi.failed");
 
-                enable_acess_point();
+                enable_access_point();
 
                 break;
         }
@@ -77,7 +77,7 @@ void WiFiDriver::connect_to(String ssid, String pkey) {
     WiFi.begin(ssid.c_str(), pkey.c_str());
 }
 
-void WiFiDriver::enable_acess_point() {
+void WiFiDriver::enable_access_point() {
     // Do nothing if AP is already on
     if (WiFi.getMode() & WIFI_AP) {
         SERVICE_PRINT("WiFi access point already enabled");
@@ -94,7 +94,7 @@ void WiFiDriver::enable_acess_point() {
     }
 }
 
-void WiFiDriver::disable_acess_point() {
+void WiFiDriver::disable_access_point() {
     if (WiFi.getMode() & WIFI_AP) {
         SERVICE_PRINT("WiFi disabling access point");
         WiFi.softAPdisconnect(true);

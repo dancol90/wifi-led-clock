@@ -23,8 +23,8 @@ public:
     void init();
     void update();
 
-    void enable_acess_point();
-    void disable_acess_point();
+    void enable_access_point();
+    void disable_access_point();
     void connect_to(String ssid, String pkey);
 
     NetworkList& scan();

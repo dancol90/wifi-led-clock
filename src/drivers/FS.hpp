@@ -1,4 +1,6 @@
 #include <FS.h>
+#undef max
+#undef min
 
 #include "../Service.hpp"
 
