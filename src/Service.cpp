@@ -71,8 +71,6 @@ void Service::sync_update() {
 }
 
 void Service::set_periodic_update(unsigned int period, UpdateType ut) {
-    Task::TaskFunct f;
-
     if (ut == UPDATE_SYNC)
         if (period == 0)
             this->update_request = ALWAYS_UPDATE;
