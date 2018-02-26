@@ -7,19 +7,19 @@
 #ifndef FS_HPP
 #define FS_HPP
 
-class FileSystemDriver : public Service {
+class FileSystemDriver : public Service
+{
 public:
-
     FileSystemDriver();
 
-    void init();
-    void update();
+    void Init();
+    void Update();
 
-    bool exists(String path);
+    bool Exists(String path);
 
-    File open(String path, bool write = false, bool append = false);
-    String read(String path);
-    void write(String path, String content);
+    File Open(String path, bool write = false, bool append = false);
+    String Read(String path);
+    void Write(String path, String content);
 };
 
 #endif

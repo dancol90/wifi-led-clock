@@ -4,38 +4,32 @@
 #ifndef REGISTRY_HPP
 #define REGISTRY_HPP
 
-class RegistryService : public Service {
+class RegistryService : public Service
+{
 public:
     RegistryService();
 
-    void init();
-    void update();
+    void Init();
+    void Update();
 
     template<typename T>
-    T get(String key, T default_val = "") {
-        SERVICE_PRINTF("Opening config file %s...", key.c_str());
+    T Get(String key, T default_val = "")
+    {
+        String content;
+        GetContent(key, content);
 
-        String file = String("/config/") + key;
-
-        if (fs->exists(file)) {
-            String s = fs->read(file);
-
-            SERVICE_PRINTF("content: %s\n", s.c_str());
-
-            return s.length() > 0 ? from_string<T>(s) : default_val;
-        } else {
-            SERVICE_PRINTF("error\n");
-            return default_val;
-        }
+        return content.length() > 0 ? from_string<T>(content) : default_val;
     }
 
-    void set(String key, String value);
+    void Set(String key, String value);
 
 private:
-    FileSystemDriver* fs;
+    FileSystemDriver* _fs;
 
     // TODO adding inline would be great, but gives some warnings, even if it works.
     template<typename T> T from_string(String s);
+
+    bool GetContent(String& key, String& content);
 };
 
 #endif

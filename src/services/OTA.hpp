@@ -1,18 +1,18 @@
 #include "../Service.hpp"
 #include "../drivers/WiFi.hpp"
+#include "../drivers/LED.hpp"
 #include "../services/Registry.hpp"
-#include "../services/Scroll.hpp"
 
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 
-#ifndef HTTP_HPP
-#define HTTP_HPP
+#ifndef OTA_HPP
+#define OTA_HPP
 
-class HTTPService : public Service
+class OTAService : public Service
 {
 public:
-    HTTPService();
+    OTAService();
 
     void Init();
     void Update();
@@ -20,11 +20,9 @@ public:
 private:
     WiFiDriver* _wifi;
     RegistryService* _registry;
-    ScrollService* _Scroll;
+    LedMatrixDriver* _Led;
 
-    ESP8266WebServer _server;
-
-    bool Authenticate();
+    void OnWifiConnected();
 };
 
 #endif

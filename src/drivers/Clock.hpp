@@ -3,37 +3,39 @@
 #ifndef CLOCK_HPP
 #define CLOCK_HPP
 
-struct Time {
-    int hour;
-    int minute;
-    int second;
+struct Time
+{
+    int Hours;
+    int Minutes;
+    int Seconds;
 
-    int day;
-    int month;
-    int year;
+    int Day;
+    int Month;
+    int Year;
 
-    int dow;
+    int DayOfWeek;
 
-    bool leap;
+    bool IsLeap;
 };
 
-class ClockDriver : public Service {
+class ClockDriver : public Service
+{
 public:
 
     ClockDriver();
 
-    void init();
-    void update();
+    void Init();
+    void Update();
 
-    void set(unsigned long timestamp);
-    Time& now();
+    void Set(unsigned long timestamp);
+    Time& Now();
 
-    void suppress_event(bool suppress);
+    void SuppressEvent(bool suppress);
 
 private:
-    long last_millis, buffer_millis;
-    bool do_event;
-    Time time;
+    long _LastMillis, _BufferMillis;
+    bool _DoEvent;
+    Time _Time;
 };
 
 #endif

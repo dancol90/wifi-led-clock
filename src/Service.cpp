@@ -1,91 +1,121 @@
 #include "Service.hpp"
 
-Service::ServiceMap Service::services;
-Service::EventMap   Service::events;
+Service::ServiceMap Service::_Services;
+Service::EventMap   Service::_Events;
 
-void Service::register_service(Service* service, const char* name, std::vector<const char*> events) {
-    SERVICE_PRINTF("Registering service %s...", name);
+void Service::RegisterService(Service* service, const char* name, std::vector<const char*> events)
+{
+    SERVICES_PRINTF("Registering service %s...", name);
 
     // If there's no service with the same name
-    if (Service::services.count(name) == 0) {
+    if (Service::_Services.count(name) == 0)
+    {
         // Register the service
-        Service::services[name] = service;
+        Service::_Services[name] = service;
 
         // For each declared event
-        for (const char* event : events) {
+        for (const char* event : events)
+        {
             // Create a new buffer every time because map does no copy the content, just the pointer
             char* event_name = new char[strlen(name) + strlen(event) + 2];
             sprintf(event_name, "%s.%s", name, event);
 
             // Initialize the callback list for the event
-            Service::events[event_name] = std::vector<EventCallback>();
+            Service::_Events[event_name] = std::vector<EventCallback>();
         }
 
-        SERVICE_PRINT("OK");
-    } else
-        SERVICE_PRINT("ERROR: already exists");
+        service->_ServiceName = name;
+
+        SERVICES_PRINT("OK\n");
+    }
+    else
+        SERVICES_PRINT("ERROR: already exists\n");
 }
 
-void Service::init_all() {
-    for (auto& s : Service::services) {
-        SERVICE_PRINTF("Initializing service %s\n", s.first);
-        s.second->init();
+void Service::InitAll()
+{
+    for (auto& s : Service::_Services)
+    {
+        SERVICES_PRINTF("Initializing service %s\n", s.first);
+        s.second->Init();
     }
 }
 
-void Service::bind_event(const char* event, EventCallback callback) {
-    SERVICE_PRINTF("Binding event %s...", event);
+void Service::BindEvent(const char* event, EventCallback callback)
+{
+    SERVICES_PRINTF("Binding event %s...", event);
 
-    if (Service::events.count(event) == 1) {
+    if (Service::_Events.count(event) == 1)
+    {
         // TODO check if the callback is already registered
-        Service::events[event].push_back(callback);
+        Service::_Events[event].push_back(callback);
 
-        SERVICE_PRINT("OK");
-    } else {
-        SERVICE_PRINT("ERROR: not found");
+        SERVICES_PRINT("OK\n");
+    }
+    else
+    {
+        SERVICES_PRINT("ERROR: not found\n");
     }
 }
 
-void Service::fire_event(Service* service, const char* event) {
-    if (Service::events.count(event)) {
-        for (EventCallback cb : Service::events[event]) {
+void Service::FireEvent(Service* service, const char* event)
+{
+    if (Service::_Events.count(event))
+    {
+        for (EventCallback cb : Service::_Events[event])
+        {
             cb(service);
         }
     }
 }
 
-Service* Service::get(const char* name) {
-    return Service::services[name];
+Service* Service::Get(const char* name)
+{
+    return Service::_Services[name];
 }
 
-void Service::sync_update() {
-    for (auto& s : Service::services) {
-        if (s.second->update_request != NO_UPDATE) {
+void Service::SyncUpdate()
+{
+    for (auto& s : Service::_Services)
+    {
+        if (s.second->_UpdateRequest != NO_UPDATE)
+        {
             //SERVICE_PRINTF("Syncronous updating service %s\n", s.first);
-            s.second->update();
+            s.second->Update();
 
-            if (s.second->update_request != ALWAYS_UPDATE)
-                s.second->update_request = NO_UPDATE;
+            if (s.second->_UpdateRequest != ALWAYS_UPDATE)
+                s.second->_UpdateRequest = NO_UPDATE;
         }
     }
 }
 
-void Service::set_periodic_update(unsigned int period, UpdateType ut) {
+void Service::SuspendAsyncUpdates()
+{
+    for (auto& s : Service::_Services)
+        s.second->DisablePeriodicUpdate();
+}
+
+void Service::SetPeriodicUpdate(unsigned int period, UpdateType ut)
+{
     if (ut == UPDATE_SYNC)
         if (period == 0)
-            this->update_request = ALWAYS_UPDATE;
+            this->_UpdateRequest = ALWAYS_UPDATE;
         else
-            this->update_task.attach(period, [this]() {
-                this->update_request = DO_UPDATE;
-            });
+            this->_UpdateTask.Attach(period, [this]()
+        {
+            this->_UpdateRequest = DO_UPDATE;
+        });
     else
-        this->update_task.attach(period, std::bind(&Service::update, this));
+        this->_UpdateTask.Attach(period, std::bind(&Service::Update, this));
 }
 
-void Service::enable_periodic_update() {
-    this->update_task.enable();
+void Service::EnablePeriodicUpdate()
+{
+    this->_UpdateTask.Enable();
 }
 
-void Service::disable_periodic_update() {
-    this->update_task.disable();
+void Service::DisablePeriodicUpdate()
+{
+    this->_UpdateTask.Disable();
 }
+

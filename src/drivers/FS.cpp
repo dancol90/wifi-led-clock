@@ -1,30 +1,36 @@
 #include "FS.hpp"
 
-FileSystemDriver::FileSystemDriver() : Service() {
-    Service::register_service(this, "fs", {});
+FileSystemDriver::FileSystemDriver() : Service()
+{
+    Service::RegisterService(this, "fs", {});
 }
 
-void FileSystemDriver::init() {
+void FileSystemDriver::Init()
+{
     SPIFFS.begin();
 }
 
-void FileSystemDriver::update() {}
+void FileSystemDriver::Update() {}
 
-bool FileSystemDriver::exists(String path) {
+bool FileSystemDriver::Exists(String path)
+{
     return SPIFFS.exists(path);
 }
 
-File FileSystemDriver::open(String path, bool write, bool append) {
+File FileSystemDriver::Open(String path, bool write, bool append)
+{
     String mode = write ? (append ? "a" : "w") : "r";
 
     return SPIFFS.open(path, mode.c_str());
 }
 
-String FileSystemDriver::read(String path) {
-    File f = open(path);
+String FileSystemDriver::Read(String path)
+{
+    File f = Open(path);
     String s;
 
-    if (f) {
+    if (f)
+    {
         s = f.readString();
         f.close();
     }
@@ -32,10 +38,12 @@ String FileSystemDriver::read(String path) {
     return s;
 }
 
-void FileSystemDriver::write(String path, String content) {
-    File f = open(path, true);
+void FileSystemDriver::Write(String path, String content)
+{
+    File f = Open(path, true);
 
-    if (f) {
+    if (f)
+    {
         f.print(content);
         f.close();
     }

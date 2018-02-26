@@ -1,55 +1,64 @@
 #include <Arduino.h>
 #include "Task.hpp"
 
-extern "C" {
+extern "C"
+{
     #include "c_types.h"
     #include "eagle_soc.h"
     #include "ets_sys.h"
     #include "osapi.h"
 }
 
-void task_callback(Task* t) {
+void task_callback(Task* t)
+{
     t->funct();
 }
 
-Task::Task() : timer(0) {}
+Task::Task() : _timer(0) {}
 
-Task::~Task() {
-	detach();
+Task::~Task()
+{
+    Detach();
 }
 
-void Task::attach(uint32_t ms, TaskFunct task, bool repeat) {
+void Task::Attach(uint32_t ms, TaskFunct task, bool repeat)
+{
     // First detach if needed
-	detach();
+    Detach();
 
-    this->timer = new ETSTimer;
-    this->ms = ms;
-    this->repeat = repeat;
+    this->_timer = new ETSTimer;
+    this->_ms = ms;
+    this->_repeat = repeat;
     this->funct = task;
 
     // Create a new timer, passing functor as parameter
-	os_timer_setfn(
-        timer,
+    os_timer_setfn(
+        _timer,
         reinterpret_cast<ETSTimerFunc*>(task_callback),
         reinterpret_cast<void*>(this)
     );
-    enable();
+    Enable();
 }
 
-void Task::detach() {
-	if (!timer)
-		return;
+void Task::Detach()
+{
+    if (!_timer)
+        return;
 
-    disable();
-	delete timer;
-	timer = 0;
+    Disable();
+    delete _timer;
+    _timer = 0;
 }
 
-void Task::enable() {
-    // Arm the timer
-	os_timer_arm(timer, ms, repeat);
+void Task::Enable()
+{
+    if (_timer)
+        // Arm the timer
+        os_timer_arm(_timer, _ms, _repeat);
 }
 
-void Task::disable() {
-    os_timer_disarm(timer);
+void Task::Disable()
+{
+    if (_timer)
+        os_timer_disarm(_timer);
 }

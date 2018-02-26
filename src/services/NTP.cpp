@@ -1,26 +1,30 @@
 #include "NTP.hpp"
 
-extern "C" {
+extern "C"
+{
     #include <sntp.h>
 }
 
 // Constants to compensate timestamp differences
 const unsigned long JAN_1_2010 = 1262304000UL;
 
-NTPService::NTPService() : Service() {
-    Service::register_service(this, "ntp", {});
+NTPService::NTPService() : Service()
+{
+    Service::RegisterService(this, "ntp", {});
 }
 
-void NTPService::init() {
-    wifi = S("wifi", WiFiDriver);
-    clock = S("clock", ClockDriver);
-    registry = S("registry", RegistryService);
+void NTPService::Init()
+{
+    _wifi = S("wifi", WiFiDriver);
+    _Clock = S("clock", ClockDriver);
+    _registry = S("registry", RegistryService);
 
-    Service::bind_event("wifi.connected", [=](Service* s) {
-        SERVICE_PRINT("Fetching current time with NTP");
+    Service::BindEvent("wifi.connected", [=](Service* s)
+    {
+        SERVICE_PRINT("Fetching current time with NTP\n");
 
-        String host  = registry->get("ntp_host", NTP_SERVER_HOST);
-        int timezone = registry->get("ntp_timezone", NTP_TIMEZONE);
+        String host = _registry->Get("ntp_host", NTP_SERVER_HOST);
+        int timezone = _registry->Get("ntp_timezone", NTP_TIMEZONE);
 
         sntp_setservername(0, (char*)host.c_str());
         sntp_set_timezone(timezone);
@@ -34,8 +38,8 @@ void NTPService::init() {
         unsigned long current_stamp = sntp_get_current_timestamp();
 
         // Compensate for the wrong timezone and change reference year to 2010
-        clock->set(current_stamp - JAN_1_2010);
+        _Clock->Set(current_stamp - JAN_1_2010);
     });
 }
 
-void NTPService::update() {}
+void NTPService::Update() {}

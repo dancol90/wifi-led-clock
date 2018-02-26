@@ -10,18 +10,18 @@
 const String NTP_SERVER_HOST = "ntp1.inrim.it";
 const int NTP_TIMEZONE = +1;
 
-class NTPService : public Service {
+class NTPService : public Service
+{
 public:
     NTPService();
 
-    void init();
-    void update();
+    void Init();
+    void Update();
 
 private:
-    WiFiDriver* wifi;
-    ClockDriver* clock;
-
-    RegistryService* registry;
+    WiFiDriver* _wifi;
+    ClockDriver* _Clock;
+    RegistryService* _registry;
 };
 
 #endif

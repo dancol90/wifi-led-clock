@@ -5,28 +5,29 @@
 #ifndef LED_HPP
 #define LED_HPP
 
-class LedMatrixDriver : public Service {
+class LedMatrixDriver : public Service
+{
 public:
 
     LedMatrixDriver();
 
-    void init();
-    void update();
+    void Init();
+    void Update();
 
-    void clear_buffer();
-    void clear_display();
+    void ClearBuffer();
+    void ClearDisplay();
 
-    long* get_buffer() { return buffer; }
+    long* GetBuffer() { return _Buffer; }
 
-    void draw_digit_big(uint8_t x, uint8_t digit);
-    void draw_digit_small(uint8_t x, uint8_t y, uint8_t digit);
+    void DrawDigitBig(uint8_t x, uint8_t digit);
+    void DrawDigitSmall(uint8_t x, uint8_t y, uint8_t digit);
 
 private:
     static const int IC_COUNT = 3;
 
-    LedControl lc;
+    LedControl _LedControl;
     // 8 rows of 8*3 pixel each = 24*8 display
-    long buffer[8];
+    long _Buffer[8];
 };
 
 #endif

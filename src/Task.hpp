@@ -7,32 +7,33 @@
 #define TICKER_H
 
 extern "C" {
-	typedef struct _ETSTIMER_ ETSTimer;
+    typedef struct _ETSTIMER_ ETSTimer;
 }
 
-class Task {
+class Task
+{
 
 public:
 
     typedef std::function<void()> TaskFunct;
 
-	Task();
-	~Task();
+    Task();
+    ~Task();
 
-    void attach(uint32_t ms, TaskFunct task, bool repeat = true);
-	void detach();
+    void Attach(uint32_t ms, TaskFunct task, bool repeat = true);
+    void Detach();
 
-    void enable();
-    void disable();
+    void Enable();
+    void Disable();
 
-	TaskFunct funct;
+    TaskFunct funct;
 
 private:
 
-	ETSTimer* timer;
+    ETSTimer* _timer;
 
-    unsigned long ms;
-    bool repeat;
+    unsigned long _ms;
+    bool _repeat;
 };
 
 

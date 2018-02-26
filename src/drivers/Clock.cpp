@@ -1,133 +1,145 @@
 #include <Arduino.h>
 #include "Clock.hpp"
 
-static const short days_per_month[]  = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+static const short days_per_month[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 // Sakamoto's costants for DOW calculation
-static const short dow_constants[]   = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+static const short dow_constants[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
 
-inline bool is_leap(int year) {
-    return (year % 4)   == 0 &&
-           (year % 100) != 0 ||
-           (year % 400) == 0;
+inline bool is_leap(int year)
+{
+    return (year % 4) == 0 && (year % 400) == 0;
 }
 
-ClockDriver::ClockDriver() : Service(), do_event(true) {
+ClockDriver::ClockDriver() : Service(), _DoEvent(true)
+{
     // Set time to 0:00 0-0-0000
-    memset(&time, 0, sizeof(Time));
+    memset(&_Time, 0, sizeof(Time));
 
-    Service::register_service(this, "clock", { "time-changed" });
+    Service::RegisterService(this, "clock", { "time-changed" });
 }
 
-void ClockDriver::init() {
+void ClockDriver::Init()
+{
     //long timestamp = getTimestamp();
     //setTime(timestamp + TIMEZONE * 60 * 60);
 
-    last_millis = millis();
-    buffer_millis = 0;
+    _LastMillis = millis();
+    _BufferMillis = 0;
 
-    set_periodic_update(10);
+    SetPeriodicUpdate(10);
 }
 
-void ClockDriver::update() {
-    int now = millis();
-    int delta = now - last_millis;
+void ClockDriver::Update()
+{
+    int Now = millis();
+    int delta = Now - _LastMillis;
 
     // Suppose that timestamp starts from 01/01/2010
-    buffer_millis += delta;
+    _BufferMillis += delta;
 
     // How many seconds elapsed?
-    int seconds   = buffer_millis / 1000UL;
+    int seconds = _BufferMillis / 1000UL;
     // Keep only the milliseconds that not count to a round number
-    buffer_millis = buffer_millis % 1000UL;
+    _BufferMillis = _BufferMillis % 1000UL;
 
-    time.second += seconds;
+    _Time.Seconds += seconds;
 
     // Cascade update all time components.
-    if (time.second >= 60) {
-        time.second = 0;
-        time.minute++;
+    if (_Time.Seconds >= 60)
+    {
+        _Time.Seconds = 0;
+        _Time.Minutes++;
 
-        if (time.minute >= 60) {
-            time.minute = 0;
-            time.hour++;
+        if (_Time.Minutes >= 60)
+        {
+            _Time.Minutes = 0;
+            _Time.Hours++;
 
-            if (time.hour >= 24) {
-                time.hour = 0;
-                time.day++;
+            if (_Time.Hours >= 24)
+            {
+                _Time.Hours = 0;
+                _Time.Day++;
 
-                time.dow = ++time.dow % 7;
+                _Time.DayOfWeek = ++_Time.DayOfWeek % 7;
 
-                if (time.day > days_per_month[time.month - 1] + (time.leap && time.month == 2)) {
-                    time.day = 1;
-                    time.month++;
+                if (_Time.Day > days_per_month[_Time.Month - 1] + (_Time.IsLeap && _Time.Month == 2))
+                {
+                    _Time.Day = 1;
+                    _Time.Month++;
 
-                    if (time.month > 12) {
-                        time.month = 1;
-                        time.year++;
+                    if (_Time.Month > 12)
+                    {
+                        _Time.Month = 1;
+                        _Time.Year++;
                     }
                 }
             }
         }
     }
 
-    last_millis = now;
+    _LastMillis = Now;
 
-    if (do_event && seconds != 0)
-        Service::fire_event(this, "clock.time-changed");
+    if (_DoEvent && seconds != 0)
+        Service::FireEvent(this, "clock.time-changed");
 }
 
-void ClockDriver::set(unsigned long timestamp) {
+void ClockDriver::Set(unsigned long timestamp)
+{
     SERVICE_PRINTF("Setting clock to timestamp %ld\n", timestamp);
 
     // Get only today's seconds
     int since_midnight = timestamp % 86400UL;
 
     // Calculate time info.
-    time.hour   =  since_midnight / 3600;
-    time.minute = (since_midnight % 3600) / 60;
-    time.second =  since_midnight % 60;
+    _Time.Hours = since_midnight / 3600;
+    _Time.Minutes = (since_midnight % 3600) / 60;
+    _Time.Seconds = since_midnight % 60;
 
     // Get how many days passed since 1 Jen 2010.
     int days = timestamp / 86400UL;
 
     // As said, timestamp = 0 => 1 Jen 2010
-    time.year = 2010;
+    _Time.Year = 2010;
 
     // Starting from 2010, remove every year's days from the count, to get correct year.
-    while (days >= 365 + is_leap(time.year)) {
-        days -= 365 + is_leap(time.year);
+    while (days >= 365 + is_leap(_Time.Year))
+    {
+        days -= 365 + is_leap(_Time.Year);
 
-        time.year++;
+        _Time.Year++;
     }
 
     // Is the year we just found leap?
-    time.leap = is_leap(time.year);
+    _Time.IsLeap = is_leap(_Time.Year);
 
     // Start from Jen, in base 0
-    time.month = 0;
+    _Time.Month = 0;
 
     // As for the year, remove month's day from the count, to get correct day.
-    while (days >= days_per_month[time.month]) {
-        days -= days_per_month[time.month] + (time.leap && (time.month == 1));
+    while (days >= days_per_month[_Time.Month])
+    {
+        days -= days_per_month[_Time.Month] + (_Time.IsLeap && (_Time.Month == 1));
 
-        time.month++;
+        _Time.Month++;
     }
 
     // Bring back the month to base 1
-    time.month++;
+    _Time.Month++;
 
     // Do the same for days
-    time.day = days + 1;
+    _Time.Day = days + 1;
 
     // Sakamoto algorithm for Day Of Week
-    int y = time.year - (time.month < 3);
-    time.dow = (y + y/4 - y/100 + y/400 + dow_constants[time.month-1] + time.day) % 7;
+    int y = _Time.Year - (_Time.Month < 3);
+    _Time.DayOfWeek = (y + y / 4 - y / 100 + y / 400 + dow_constants[_Time.Month - 1] + _Time.Day) % 7;
 }
 
-Time& ClockDriver::now() {
-    return time;
+Time& ClockDriver::Now()
+{
+    return _Time;
 }
 
-void ClockDriver::suppress_event(bool suppress) {
-    do_event = !suppress;
+void ClockDriver::SuppressEvent(bool suppress)
+{
+    _DoEvent = !suppress;
 }

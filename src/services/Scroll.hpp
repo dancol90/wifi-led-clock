@@ -5,33 +5,34 @@
 #ifndef SCROLL_HPP
 #define SCROLL_HPP
 
-class ScrollService : public Service {
+class ScrollService : public Service
+{
 public:
     static const unsigned int SCROLL_SPEED = 75;
 
     ScrollService();
 
-    void init();
-    void update();
+    void Init();
+    void Update();
 
     void start();
     void stop();
 
-    bool is_scrolling() { return scrolling; }
+    bool is_scrolling() { return _scrolling; }
 
-    char* get_buffer() { return text; }
+    char* get_buffer() { return _text; }
     void  message(String format, ...);
 
 private:
-    LedMatrixDriver* display;
-    ClockDriver* clock;
+    LedMatrixDriver* _display;
+    ClockDriver* _Clock;
 
-    unsigned int step;
+    unsigned int _step;
 
-    bool    scrolling;
-    char    text[250];
-    uint8_t text_len, position, column_left;
-    uint8_t glyph[8];
+    bool    _scrolling;
+    char    _text[250];
+    uint8_t _text_len, _position, _column_left;
+    uint8_t _glyph[8];
 };
 
 #endif

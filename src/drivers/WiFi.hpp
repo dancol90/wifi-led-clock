@@ -8,32 +8,34 @@
 
 const String WIFI_AP_SSID = "ESP8266";
 
-struct WiFiNetwork {
+struct WiFiNetwork
+{
     String SSID;
     int RSSI;
     int encryption;
 };
 
-class WiFiDriver : public Service {
+class WiFiDriver : public Service
+{
 public:
     typedef std::vector<WiFiNetwork> NetworkList;
 
     WiFiDriver();
 
-    void init();
-    void update();
+    void Init();
+    void Update();
 
-    void enable_access_point();
-    void disable_access_point();
-    void connect_to(String ssid, String pkey);
+    void EnableAccessPoint();
+    void DisableAccessPoint();
+    void ConnectTo(String ssid, String pkey);
 
-    NetworkList& scan();
-    NetworkList& last_scan_result();
+    NetworkList& Scan();
+    NetworkList& LastScanResult();
 private:
-    RegistryService* registry;
+    RegistryService* _Registry;
 
-    wl_status_t prev_status;
-    NetworkList networks;
+    wl_status_t _PrevStatus;
+    NetworkList _Networks;
 };
 
 #endif

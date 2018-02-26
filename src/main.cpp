@@ -9,7 +9,7 @@
    - [OK] Scroll management
    - [OK] Configuration (over SPIFFS)
    - [OK*] HTTP Server (?)
-   - NTP
+   - [OK] NTP
    - MQTT handling
 */
 
@@ -24,8 +24,14 @@
 #include "services/HTTP.hpp"
 #include "services/Registry.hpp"
 #include "services/NTP.hpp"
+#include "services/WebSocket.hpp"
+#include "services/OTA.hpp"
+#include "application/SlackApplication.hpp"
+#include "application/ClockApplication.hpp"
 
-void setup() {
+
+void setup()
+{
     Serial.begin(115200);
 
     Service* drivers[] = {
@@ -41,36 +47,20 @@ void setup() {
         // Services
         new ScrollService(),
         new HTTPService(),
-        new NTPService()
+        new NTPService(),
+        new WebSocket(),
+        new OTAService(),
+
+        // Application
+        //new SlackApplication(),
+        new ClockApplication()
     };
 
-    Service::init_all();
-
-    Service::bind_event("clock.time-changed", [](Service* clock) {
-        Time& t = ((ClockDriver*)clock)->now();
-        LedMatrixDriver* led = S("display", LedMatrixDriver);
-
-        if (t.second % 30 == 0) {
-            S("scroll", ScrollService)->message("%d %d %d", t.day, t.month, t.year);
-            return;
-        }
-
-        led->clear_buffer();
-
-        led->draw_digit_big(0,  t.hour / 10);
-        led->draw_digit_big(4,  t.hour % 10);
-
-        led->draw_digit_big(9,  t.minute / 10);
-        led->draw_digit_big(13, t.minute % 10);
-
-        led->draw_digit_small(18, 3, t.second / 10);
-        led->draw_digit_small(21, 3, t.second % 10);
-
-        led->update();
-    });
+    Service::InitAll();
 }
 
-void loop() {
-    Service::sync_update();
+void loop()
+{
+    Service::SyncUpdate();
     delay(0);
 }
