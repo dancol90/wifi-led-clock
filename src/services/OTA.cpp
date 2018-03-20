@@ -55,7 +55,7 @@ void OTAService::OnWifiConnected()
         int percent = 100 * progress / total;
         SERVICE_PRINTF("Progress: %u%%\n", percent);
 
-        _Led->ClearBuffer();
+        _Led->ClearDisplay();
 
         _Led->DrawDigitBig(6, percent / 100);
         _Led->DrawDigitBig(10, (percent % 100) / 10);

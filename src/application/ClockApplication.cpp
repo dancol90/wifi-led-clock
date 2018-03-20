@@ -19,7 +19,7 @@ void ClockApplication::Init() {
             return;
         }
 
-        _Led->ClearBuffer();
+        _Led->ClearDisplay();
 
         _Led->DrawDigitBig(0, t.Hours / 10);
         _Led->DrawDigitBig(4, t.Hours % 10);

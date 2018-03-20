@@ -1,57 +1,83 @@
 #include "LED.hpp"
 #include "../resources/fonts.h"
 
-LedMatrixDriver::LedMatrixDriver() : Service(), _LedControl(14, 4, 5, LedMatrixDriver::IC_COUNT)
+LedMatrixDriver::LedMatrixDriver() : Service()
 {
     Service::RegisterService(this, "display", {});
 }
 
 void LedMatrixDriver::Init()
 {
-    for (int i = 0; i < IC_COUNT; i++)
-    {
-        // The MAX72XX is in power-saving mode on startup, we have to do a wakeup call
-        _LedControl.shutdown(i, false);
-        // Set the brightness
-        _LedControl.setIntensity(i, 8);
-        // and clear the display
-        _LedControl.clearDisplay(i);
-    }
+    pinMode(SPI_MOSI, OUTPUT);
+    pinMode(SPI_CLK, OUTPUT);
+    pinMode(SPI_CS, OUTPUT);
+    digitalWrite(SPI_CS, HIGH);
 
-    ClearBuffer();
+    writeCommand(OP_DISPLAYTEST, 0);
+    // Scanlimit is set to max on startup
+    writeCommand(OP_SCANLIMIT, 7);
+    // Decode is done in source
+    writeCommand(OP_DECODEMODE, 0);
+    // Set the brightness
+    writeCommand(OP_INTENSITY, 1);
+    // Wake the MAX72XX devices (NOTE: OP_SHUTDOWN is active low)
+    writeCommand(OP_SHUTDOWN, 1);
+
+    // Write whole empty buffer
+    ClearDisplay();
+    Update();
 }
 
 void LedMatrixDriver::Update()
 {
     int shift;
 
-    for (int d = 0; d < IC_COUNT; d++)
-    {
-        // buffer[i] (long) structure:
-        // 00000000  xxxxxxxx  xxxxxxxx  xxxxxxxx
-        //  ignored  matrix 0  matrix 1  matrix 2
-        shift = 8 * d;//(2 - d);
+    // This routine is similar to sendCommand, but every devices receives different data with the same opcode.
+    // It leverage the shift-register nature of the chip, writing a full row at a time.
 
-        for (int i = 0; i < 8; i++)
-            _LedControl.setRow(d, i, _Buffer[i] >> shift);
-    }
-}
-
-void LedMatrixDriver::ClearBuffer()
-{
-    for (int i = 0; i < 8; i++)
+    // Shift out date for every device, starting from the last one
+    for (int row = 0; row < 8; row++)
     {
-        _Buffer[i] = 0;
+        // Enable the line
+        digitalWrite(SPI_CS, LOW);
+        
+        for (int i = IC_COUNT - 1; i >= 0; i--)
+        {
+            // buffer[i] (long) structure:
+            // 00000000  xxxxxxxx  xxxxxxxx  xxxxxxxx
+            //  ignored  matrix 2  matrix 1  matrix 0
+            shift = i << 3; // Faster way to say i * 8
+            
+            shiftOut(SPI_MOSI, SPI_CLK, MSBFIRST, row + 1);
+            shiftOut(SPI_MOSI, SPI_CLK, MSBFIRST, _Buffer[i] >> shift);
+        }
+
+        // Latch the data onto the display
+        digitalWrite(SPI_CS, HIGH);
     }
 }
 
 void LedMatrixDriver::ClearDisplay()
 {
+    for (int i = 0; i < 8; i++)
+        _Buffer[i] = 0;
+}
+
+// #############################################################################
+
+void LedMatrixDriver::writeCommand(volatile byte opcode, volatile byte data)
+{
+    // Enable the line
+    digitalWrite(SPI_CS, LOW);
+    
     for (int i = 0; i < IC_COUNT; i++)
     {
-        // clear the display
-        _LedControl.clearDisplay(i);
+        shiftOut(SPI_MOSI, SPI_CLK, MSBFIRST, opcode);
+        shiftOut(SPI_MOSI, SPI_CLK, MSBFIRST, data);
     }
+
+    // Latch the data onto the display
+    digitalWrite(SPI_CS, HIGH);
 }
 
 // #############################################################################
