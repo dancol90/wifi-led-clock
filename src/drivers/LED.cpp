@@ -49,7 +49,7 @@ void LedMatrixDriver::Update()
             shift = i << 3; // Faster way to say i * 8
             
             shiftOut(SPI_MOSI, SPI_CLK, MSBFIRST, row + 1);
-            shiftOut(SPI_MOSI, SPI_CLK, MSBFIRST, _Buffer[i] >> shift);
+            shiftOut(SPI_MOSI, SPI_CLK, MSBFIRST, _Buffer[row] >> shift);
         }
 
         // Latch the data onto the display
